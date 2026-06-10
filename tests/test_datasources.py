@@ -11,7 +11,10 @@ ROOT = Path(__file__).resolve().parents[1]
 def test_csv_source_groups_rows_by_invoice() -> None:
     invoices = CsvSource(ROOT / "data" / "invoices_sample.csv").load()
 
-    assert [invoice.invoice_id for invoice in invoices] == ["INV-2024-001", "INV-2024-002"]
+    assert [invoice.invoice_id for invoice in invoices] == [
+        "INV-2024-001",
+        "INV-2024-002",
+    ]
     assert len(invoices[0].items) == 3
     assert invoices[0].total > 0
 

@@ -5,7 +5,6 @@ from __future__ import annotations
 import csv
 from collections import OrderedDict
 from decimal import Decimal
-from pathlib import Path
 from typing import Any
 
 from pdfcheckmaker.core.exceptions import DataSourceError
@@ -44,7 +43,9 @@ class CsvSource(DataSource):
                         "inn": row.get("buyer_inn") or None,
                         "address": row.get("buyer_address") or None,
                     },
-                    "discount_percent": self._decimal_or_zero(row.get("discount_percent")),
+                    "discount_percent": self._decimal_or_zero(
+                        row.get("discount_percent")
+                    ),
                     "tax_percent": self._decimal_or_zero(row.get("tax_percent")),
                     "notes": row.get("notes") or None,
                     "payment_qr": row.get("payment_qr") or None,
@@ -54,7 +55,9 @@ class CsvSource(DataSource):
             invoice["items"].append(
                 {
                     "name": row.get("item_name"),
-                    "quantity": self._required_decimal(row, "item_quantity", row_number),
+                    "quantity": self._required_decimal(
+                        row, "item_quantity", row_number
+                    ),
                     "price": self._required_decimal(row, "item_price", row_number),
                 }
             )
@@ -66,7 +69,9 @@ class CsvSource(DataSource):
         return Decimal(value) if value not in (None, "") else Decimal("0")
 
     @staticmethod
-    def _required_decimal(row: dict[str, str | None], field: str, row_number: int) -> Decimal:
+    def _required_decimal(
+        row: dict[str, str | None], field: str, row_number: int
+    ) -> Decimal:
         value = row.get(field)
         if value in (None, ""):
             raise DataSourceError(f"CSV row {row_number}: missing {field}")

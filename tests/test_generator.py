@@ -14,7 +14,9 @@ def test_pdf_generation_creates_non_empty_file(tmp_path: Path) -> None:
     generator = InvoiceGenerator()
 
     try:
-        output_path = generator.generate_one(invoice, ROOT / "templates" / "invoice_standard", tmp_path)
+        output_path = generator.generate_one(
+            invoice, ROOT / "templates" / "invoice_standard", tmp_path
+        )
     except Exception as exc:
         pytest.skip(f"WeasyPrint is not available in this environment: {exc}")
 

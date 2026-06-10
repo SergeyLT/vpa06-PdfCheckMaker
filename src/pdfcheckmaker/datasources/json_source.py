@@ -21,9 +21,13 @@ class JsonSource(DataSource):
 
         raw_invoices = data.get("invoices") if isinstance(data, dict) else data
         if not isinstance(raw_invoices, list):
-            raise DataSourceError("JSON source must contain a list or an object with an 'invoices' list")
+            raise DataSourceError(
+                "JSON source must contain a list or an object with an 'invoices' list"
+            )
         return [build_invoice(item) for item in raw_invoices]
 
     @staticmethod
     def _strip_comment_lines(text: str) -> str:
-        return "\n".join(line for line in text.splitlines() if not line.lstrip().startswith("//"))
+        return "\n".join(
+            line for line in text.splitlines() if not line.lstrip().startswith("//")
+        )

@@ -18,7 +18,7 @@ output/              # PDF создаются здесь при запуске C
 
 ## Установка
 
-Все команды ниже выполняются из корня проекта. Зависимости устанавливаются через `requirements.txt`, который ставит проект в editable-режиме вместе с dev-зависимостями из `pyproject.toml`.
+Все команды ниже выполняются из корня проекта. Зависимости описаны в `pyproject.toml`: рантайм-зависимости находятся в `[project.dependencies]`, а инструменты разработки — в `[project.optional-dependencies].dev`.
 
 ### Linux/macOS
 
@@ -27,24 +27,24 @@ python -m venv .venv
 source .venv/bin/activate
 python -m ensurepip --upgrade
 python -m pip install --upgrade pip
-python -m pip install -r requirements.txt
+python -m pip install -e ".[dev]"
 ```
 
 ### Windows PowerShell
 
 ```powershell
-python -m venv venv
-.\venv\Scripts\Activate.ps1
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
 python -m ensurepip --upgrade
 python -m pip install --upgrade pip
-python -m pip install -r requirements.txt
+python -m pip install -e ".[dev]"
 ```
 
 Если PowerShell блокирует запуск скрипта активации, разрешите его только для текущей сессии:
 
 ```powershell
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
-.\venv\Scripts\Activate.ps1
+.\.venv\Scripts\Activate.ps1
 ```
 
 ### GTK/Pango для WeasyPrint на Windows
@@ -58,11 +58,11 @@ WeasyPrint на Windows использует нативные библиотек
 pacman -S mingw-w64-x86_64-pango
 ```
 
-3. Закройте MSYS2, откройте обычный Windows PowerShell, активируйте `venv` проекта и установите Python-зависимости:
+3. Закройте MSYS2, откройте обычный Windows PowerShell, активируйте `.venv` проекта и установите Python-зависимости:
 
 ```powershell
-.\venv\Scripts\Activate.ps1
-python -m pip install -r requirements.txt
+.\.venv\Scripts\Activate.ps1
+python -m pip install -e ".[dev]"
 ```
 
 4. Проверьте, что WeasyPrint видит нативные библиотеки:
@@ -100,7 +100,7 @@ pdfcheckmaker
 Windows PowerShell:
 
 ```powershell
-.\venv\Scripts\Activate.ps1
+.\.venv\Scripts\Activate.ps1
 pdfcheckmaker
 ```
 
@@ -173,6 +173,6 @@ python -m pytest
 Windows PowerShell:
 
 ```powershell
-.\venv\Scripts\Activate.ps1
+.\.venv\Scripts\Activate.ps1
 python -m pytest
 ```

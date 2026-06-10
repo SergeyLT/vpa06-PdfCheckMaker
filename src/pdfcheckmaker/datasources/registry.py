@@ -28,7 +28,9 @@ class DataSourceRegistry:
         source_class = self._sources.get(path.suffix.lower())
         if source_class is None:
             supported = ", ".join(sorted(self._sources)) or "<none>"
-            raise DataSourceError(f"Unsupported data source extension {path.suffix!r}. Supported: {supported}")
+            raise DataSourceError(
+                f"Unsupported data source extension {path.suffix!r}. Supported: {supported}"
+            )
         return source_class(path)
 
     def supported_extensions(self) -> tuple[str, ...]:

@@ -31,6 +31,8 @@ output/
 .env
 .env.*
 !.env.example
+AGENTS.md
+.codex/
 
 # IDE/editor files
 .idea/

@@ -17,11 +17,17 @@ logger = logging.getLogger(__name__)
 class InvoiceGenerator:
     """High-level facade for rendering invoice PDFs."""
 
-    def __init__(self, template_loader: TemplateLoader | None = None, renderer: PdfRenderer | None = None) -> None:
+    def __init__(
+        self,
+        template_loader: TemplateLoader | None = None,
+        renderer: PdfRenderer | None = None,
+    ) -> None:
         self.template_loader = template_loader or TemplateLoader()
         self.renderer = renderer or PdfRenderer()
 
-    def generate_one(self, invoice: Invoice, template_dir: Path, output_dir: Path) -> Path:
+    def generate_one(
+        self, invoice: Invoice, template_dir: Path, output_dir: Path
+    ) -> Path:
         """Generate a single PDF invoice."""
         bundle = self.template_loader.load(template_dir)
         html = self._render_html(invoice, bundle)
@@ -30,9 +36,13 @@ class InvoiceGenerator:
         logger.info("Generating invoice %s to %s", invoice.invoice_id, output_path)
         return self.renderer.render_pdf(html, output_path, base_url=bundle.directory)
 
-    def generate_many(self, invoices: list[Invoice], template_dir: Path, output_dir: Path) -> list[Path]:
+    def generate_many(
+        self, invoices: list[Invoice], template_dir: Path, output_dir: Path
+    ) -> list[Path]:
         """Generate several invoices with the same template."""
-        return [self.generate_one(invoice, template_dir, output_dir) for invoice in invoices]
+        return [
+            self.generate_one(invoice, template_dir, output_dir) for invoice in invoices
+        ]
 
     def _render_html(self, invoice: Invoice, bundle: TemplateBundle) -> str:
         bundle.manifest.validate_invoice(invoice)
@@ -41,7 +51,11 @@ class InvoiceGenerator:
         context["locale"] = bundle.manifest.locale
         context["font_css"] = self._font_css()
         context["pdf_title"] = f"Invoice {invoice.invoice_id}"
-        context["pdf_created"] = datetime.now(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z")
+        context["pdf_created"] = (
+            datetime.now(timezone.utc)
+            .isoformat(timespec="seconds")
+            .replace("+00:00", "Z")
+        )
 
         qr_settings = bundle.manifest.qr or {}
         source_field = qr_settings.get("source_field", "payment_qr")
@@ -51,7 +65,9 @@ class InvoiceGenerator:
 
     @staticmethod
     def _safe_filename(value: str) -> str:
-        return "".join(char if char.isalnum() or char in ("-", "_") else "_" for char in value)
+        return "".join(
+            char if char.isalnum() or char in ("-", "_") else "_" for char in value
+        )
 
     @staticmethod
     def _font_css() -> str:

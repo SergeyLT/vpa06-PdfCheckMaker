@@ -11,7 +11,6 @@ from pathlib import Path
 import questionary
 
 from pdfcheckmaker.core.generator import InvoiceGenerator
-from pdfcheckmaker.core.models import Invoice
 from pdfcheckmaker.datasources.registry import default_registry
 from pdfcheckmaker.templates_engine.loader import TemplateLoader, discover_templates
 
@@ -37,8 +36,16 @@ def main() -> None:
     if not template_dirs:
         raise SystemExit(f"Шаблоны не найдены в {templates_dir}")
 
-    data_file = Path(questionary.select("Выберите источник данных:", choices=[str(path) for path in data_files]).ask())
-    template_dir = Path(questionary.select("Выберите шаблон:", choices=[str(path) for path in template_dirs]).ask())
+    data_file = Path(
+        questionary.select(
+            "Выберите источник данных:", choices=[str(path) for path in data_files]
+        ).ask()
+    )
+    template_dir = Path(
+        questionary.select(
+            "Выберите шаблон:", choices=[str(path) for path in template_dirs]
+        ).ask()
+    )
 
     invoices = registry.create(data_file).load()
     invoice_map = {invoice.invoice_id: invoice for invoice in invoices}
@@ -61,7 +68,11 @@ def discover_data_files(root: Path, extensions: tuple[str, ...]) -> list[Path]:
     """Find supported data files."""
     if not root.exists():
         return []
-    return sorted(path for path in root.iterdir() if path.is_file() and path.suffix.lower() in extensions)
+    return sorted(
+        path
+        for path in root.iterdir()
+        if path.is_file() and path.suffix.lower() in extensions
+    )
 
 
 def open_file(path: Path) -> None:

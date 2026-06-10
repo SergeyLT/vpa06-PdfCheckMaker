@@ -5,7 +5,13 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 
-from jinja2 import Environment, FileSystemLoader, StrictUndefined, Template, select_autoescape
+from jinja2 import (
+    Environment,
+    FileSystemLoader,
+    StrictUndefined,
+    Template,
+    select_autoescape,
+)
 
 from pdfcheckmaker.core.exceptions import TemplateError
 from pdfcheckmaker.templates_engine.manifest import TemplateManifest
@@ -27,7 +33,9 @@ class TemplateLoader:
         """Load a template directory."""
         manifest_path = template_dir / "manifest.yaml"
         if not manifest_path.exists():
-            raise TemplateError(f"Template directory {template_dir} has no manifest.yaml")
+            raise TemplateError(
+                f"Template directory {template_dir} has no manifest.yaml"
+            )
 
         manifest = TemplateManifest.from_file(manifest_path)
         template_path = template_dir / manifest.template_file
@@ -40,7 +48,9 @@ class TemplateLoader:
             undefined=StrictUndefined,
         )
         template = environment.get_template(manifest.template_file)
-        return TemplateBundle(directory=template_dir, manifest=manifest, template=template)
+        return TemplateBundle(
+            directory=template_dir, manifest=manifest, template=template
+        )
 
 
 def discover_templates(root: Path) -> list[Path]:

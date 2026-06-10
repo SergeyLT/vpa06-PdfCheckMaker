@@ -26,7 +26,9 @@ class TemplateManifest(BaseModel):
     optional_fields: list[str] = Field(default_factory=list)
     computed_fields: list[str] = Field(default_factory=list)
     schema_: dict[str, Any] = Field(default_factory=dict, alias="schema")
-    locale: dict[str, Any] = Field(default_factory=lambda: {"currency": "RUB", "currency_symbol": "RUB"})
+    locale: dict[str, Any] = Field(
+        default_factory=lambda: {"currency": "RUB", "currency_symbol": "RUB"}
+    )
     qr: dict[str, Any] | None = None
 
     @classmethod
@@ -41,7 +43,9 @@ class TemplateManifest(BaseModel):
     def validate_invoice(self, invoice: Invoice) -> None:
         """Ensure invoice data satisfies this manifest."""
         data = invoice.model_dump()
-        missing = [field for field in self.required_fields if not self._has_value(data, field)]
+        missing = [
+            field for field in self.required_fields if not self._has_value(data, field)
+        ]
 
         for object_name, rules in self.schema_.items():
             required = rules.get("required", []) if isinstance(rules, dict) else []
@@ -53,7 +57,9 @@ class TemplateManifest(BaseModel):
             else:
                 nested = data.get(object_name)
                 for field in required:
-                    if not isinstance(nested, dict) or not self._has_value(nested, field):
+                    if not isinstance(nested, dict) or not self._has_value(
+                        nested, field
+                    ):
                         missing.append(f"{object_name}.{field}")
 
         if missing:

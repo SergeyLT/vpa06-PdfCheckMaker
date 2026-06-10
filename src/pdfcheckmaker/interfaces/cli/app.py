@@ -10,9 +10,9 @@ from pathlib import Path
 
 import questionary
 
-from pdfcheckmaker.core.generator import InvoiceGenerator
 from pdfcheckmaker.datasources.registry import default_registry
-from pdfcheckmaker.templates_engine.loader import TemplateLoader, discover_templates
+from pdfcheckmaker.services.generation import generate_invoice_pdfs, load_invoices
+from pdfcheckmaker.templates_engine.loader import discover_templates
 
 logger = logging.getLogger(__name__)
 
@@ -47,19 +47,19 @@ def main() -> None:
         ).ask()
     )
 
-    invoices = registry.create(data_file).load()
+    invoices = load_invoices(data_file, registry=registry)
     invoice_map = {invoice.invoice_id: invoice for invoice in invoices}
     choices = [GENERATE_ALL_LABEL] + list(invoice_map)
     selected = questionary.select("Выберите чек:", choices=choices).ask()
 
-    generator = InvoiceGenerator(template_loader=TemplateLoader())
     if selected == GENERATE_ALL_LABEL:
-        paths = generator.generate_many(invoices, template_dir, output_dir)
+        paths = generate_invoice_pdfs(invoices, template_dir, output_dir)
         logger.info("Создано PDF-файлов: %s. Папка: %s", len(paths), output_dir)
         return
 
-    invoice = invoice_map[str(selected)]
-    output_path = generator.generate_one(invoice, template_dir, output_dir)
+    output_path = generate_invoice_pdfs(
+        invoices, template_dir, output_dir, invoice_id=str(selected)
+    )[0]
     logger.info("PDF создан: %s", output_path)
     open_file(output_path)
 

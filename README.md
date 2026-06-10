@@ -9,7 +9,9 @@ src/pdfcheckmaker/
   core/              # модели, расчеты, QR, PDF-render, фасад InvoiceGenerator
   datasources/       # Strategy + Registry для CSV/JSON и будущих источников
   templates_engine/  # загрузка template.html и manifest.yaml
+  services/          # общая логика сценариев для CLI и других интерфейсов
   interfaces/cli/    # интерактивное меню questionary
+  bot/               # Telegram-бот на aiogram 3.x
 data/                # примеры входных данных
 templates/           # HTML-шаблоны с manifest.yaml
 tests/               # pytest
@@ -106,6 +108,28 @@ pdfcheckmaker
 
 CLI покажет доступные файлы из `data/`, шаблоны из `templates/`, затем список `invoice_id`. Можно сгенерировать один чек или весь batch. Одиночный PDF после генерации откроется системной программой.
 
+### Telegram-бот
+
+Бот использует `aiogram` 3.x и берет настройки только из `.env`. Создайте `.env` по примеру `.env.example`:
+
+```env
+BOT_TOKEN=123456:replace-with-real-token
+ALLOWED_USER_IDS=123456789,987654321
+MAX_INPUT_FILE_SIZE_BYTES=5242880
+```
+
+`BOT_TOKEN` — токен от BotFather. `ALLOWED_USER_IDS` — Telegram ID пользователей, которым разрешен доступ к боту.
+`MAX_INPUT_FILE_SIZE_BYTES` — максимальный размер входного CSV/JSON-файла; по умолчанию 5 МБ.
+
+Запуск:
+
+```powershell
+.\.venv\Scripts\Activate.ps1
+pdfcheckmaker-bot
+```
+
+Бот отвечает на `/start` и `/help`, показывает inline-кнопки с готовыми шаблонами из `templates/`, затем принимает CSV/JSON-файл, генерирует PDF по выбранному шаблону и отправляет результат обратно. Доступ ограничен белым списком пользователей.
+
 ## Формат данных
 
 CSV использует одну строку на позицию чека и группируется по `invoice_id`:
@@ -151,12 +175,12 @@ templates/invoice_standard/
 2. Зарегистрировать расширение в `default_registry()` или в собственном registry интерфейса.
 3. Остальной код менять не нужно.
 
-Новый интерфейс вызывает только фасад:
+Новый интерфейс вызывает общий сервисный слой:
 
 ```python
-from pdfcheckmaker.core.generator import InvoiceGenerator
+from pdfcheckmaker.services.generation import generate_pdfs_from_data_file
 
-InvoiceGenerator().generate_one(invoice, template_dir, output_dir)
+generate_pdfs_from_data_file(data_file, template_dir, output_dir)
 ```
 
 ## Тесты

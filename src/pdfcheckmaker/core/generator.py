@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 from pdfcheckmaker.core.models import Invoice
@@ -41,7 +41,7 @@ class InvoiceGenerator:
         context["locale"] = bundle.manifest.locale
         context["font_css"] = self._font_css()
         context["pdf_title"] = f"Invoice {invoice.invoice_id}"
-        context["pdf_created"] = datetime.now().isoformat(timespec="seconds")
+        context["pdf_created"] = datetime.now(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z")
 
         qr_settings = bundle.manifest.qr or {}
         source_field = qr_settings.get("source_field", "payment_qr")
@@ -56,9 +56,5 @@ class InvoiceGenerator:
     @staticmethod
     def _font_css() -> str:
         return """
-@font-face {
-    font-family: 'DejaVu Sans';
-    src: local('DejaVu Sans'), local('Roboto');
-}
-body { font-family: 'DejaVu Sans', 'Roboto', sans-serif; }
+body { font-family: 'DejaVu Sans', 'Noto Sans', 'Liberation Sans', 'Arial', sans-serif; }
 """

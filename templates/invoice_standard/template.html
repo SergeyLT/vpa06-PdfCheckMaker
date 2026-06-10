@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>{{ pdf_title }}</title>
+<meta name="dcterms.created" content="{{ pdf_created }}">
+<style>
+    {{ font_css|safe }}
+    @page { size: A4; margin: 1.5cm; }
+    body { font-size: 11px; color: #222; }
+    .header { display: flex; justify-content: space-between; align-items: flex-start; }
+    .doc-title { font-size: 22px; font-weight: bold; }
+    .meta { text-align: right; font-size: 11px; }
+    .parties { display: flex; justify-content: space-between; margin: 20px 0; }
+    .party { width: 48%; }
+    .party h3 { margin: 0 0 4px; font-size: 12px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th { background: #2c3e50; color: #fff; padding: 8px; text-align: left; font-size: 11px; }
+    td { padding: 7px 8px; border-bottom: 1px solid #ddd; }
+    td.num, th.num { text-align: right; }
+    .totals { margin-top: 16px; width: 280px; margin-left: auto; }
+    .totals tr td { border: none; padding: 4px 8px; }
+    .totals .grand td { font-weight: bold; font-size: 14px; border-top: 2px solid #2c3e50; }
+    .footer { margin-top: 30px; display: flex; justify-content: space-between; align-items: flex-end; }
+    .notes { font-size: 10px; color: #666; max-width: 60%; }
+    .qr img { width: 110px; height: 110px; }
+</style>
+</head>
+<body>
+    <div class="header">
+        <div>
+            <div class="doc-title">Товарный чек</div>
+            <div>№ {{ invoice_id }}</div>
+        </div>
+        <div class="meta">
+            <div>Дата: {{ issue_date }}</div>
+            <div>Сформирован: {{ generated_at }}</div>
+        </div>
+    </div>
+
+    <div class="parties">
+        <div class="party">
+            <h3>Продавец</h3>
+            <div>{{ seller.name }}</div>
+            <div>ИНН: {{ seller.inn }}</div>
+            <div>{{ seller.address }}</div>
+        </div>
+        <div class="party">
+            <h3>Покупатель</h3>
+            <div>{{ buyer.name }}</div>
+            {% if buyer.inn %}<div>ИНН: {{ buyer.inn }}</div>{% endif %}
+            {% if buyer.address %}<div>{{ buyer.address }}</div>{% endif %}
+        </div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Наименование</th>
+                <th class="num">Кол-во</th>
+                <th class="num">Цена</th>
+                <th class="num">Сумма</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in items %}
+            <tr>
+                <td>{{ loop.index }}</td>
+                <td>{{ item.name }}</td>
+                <td class="num">{{ item.quantity }}</td>
+                <td class="num">{{ "%.2f"|format(item.price|float) }} {{ locale.currency_symbol }}</td>
+                <td class="num">{{ "%.2f"|format(item.sum|float) }} {{ locale.currency_symbol }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <table class="totals">
+        <tr>
+            <td>Подытог:</td>
+            <td class="num">{{ "%.2f"|format(subtotal|float) }} {{ locale.currency_symbol }}</td>
+        </tr>
+        {% if discount_amount and discount_amount|float > 0 %}
+        <tr>
+            <td>Скидка ({{ discount_percent }}%):</td>
+            <td class="num">−{{ "%.2f"|format(discount_amount|float) }} {{ locale.currency_symbol }}</td>
+        </tr>
+        {% endif %}
+        {% if tax_amount and tax_amount|float > 0 %}
+        <tr>
+            <td>Налог:</td>
+            <td class="num">{{ "%.2f"|format(tax_amount|float) }} {{ locale.currency_symbol }}</td>
+        </tr>
+        {% endif %}
+        <tr class="grand">
+            <td>Итого:</td>
+            <td class="num">{{ "%.2f"|format(total|float) }} {{ locale.currency_symbol }}</td>
+        </tr>
+    </table>
+
+    <div class="footer">
+        <div class="notes">
+            {% if notes %}{{ notes }}{% endif %}
+        </div>
+        {% if payment_qr %}
+        <div class="qr">
+            <img src="{{ qr_image_base64 }}" alt="QR оплаты">
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>
